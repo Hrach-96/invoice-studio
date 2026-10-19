@@ -1,0 +1,9 @@
+.env
+/storage/*
+!/storage/.gitkeep
+/tests/.tmp/
+*.pdf
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

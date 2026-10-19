@@ -1,0 +1,68 @@
+{
+  "_comment": "Shared money test cases. Run by tests/run.php (PHP) and tests/browser.html (JS) so both implementations must agree. All results in cents.",
+  "totals": [
+    {
+      "name": "Brief check: 2 x $50 - $10 discount + 10% tax = $99.00",
+      "items": [["2", "50.00"]], "discount": "10.00", "taxRate": "10",
+      "expect": { "lines": [10000], "subtotal": 10000, "tax": 900, "total": 9900 }
+    },
+    {
+      "name": "Each line is rounded to cents before summing (0.5c + 0.5c = 2c, not 1c)",
+      "items": [["0.5", "0.01"], ["0.5", "0.01"]], "discount": "0", "taxRate": "0",
+      "expect": { "lines": [1, 1], "subtotal": 2, "tax": 0, "total": 2 }
+    },
+    {
+      "name": "Line rounding is half-up: 1.005 x $1.00 = $1.01",
+      "items": [["1.005", "1.00"]], "discount": "0", "taxRate": "0",
+      "expect": { "lines": [101], "subtotal": 101, "tax": 0, "total": 101 }
+    },
+    {
+      "name": "Fractional quantity: 0.333 h x $10.00 = $3.33",
+      "items": [["0.333", "10.00"]], "discount": "0", "taxRate": "0",
+      "expect": { "lines": [333], "subtotal": 333, "tax": 0, "total": 333 }
+    },
+    {
+      "name": "Tax is calculated after discount and rounded: ($25.00 - $5.01) x 8.875% = $1.77",
+      "items": [["1", "25.00"]], "discount": "5.01", "taxRate": "8.875",
+      "expect": { "lines": [2500], "subtotal": 2500, "tax": 177, "total": 2176 }
+    },
+    {
+      "name": "Tax rounding is half-up: $0.50 x 1% = $0.005 -> $0.01",
+      "items": [["1", "0.50"]], "discount": "0", "taxRate": "1",
+      "expect": { "lines": [50], "subtotal": 50, "tax": 1, "total": 51 }
+    },
+    {
+      "name": "Discount equal to subtotal gives zero total",
+      "items": [["3", "19.99"]], "discount": "59.97", "taxRate": "20",
+      "expect": { "lines": [5997], "subtotal": 5997, "tax": 0, "total": 0 }
+    },
+    {
+      "name": "Classic float trap: 3 x $0.10 + 1 x $0.20 = $0.50 exactly",
+      "items": [["3", "0.10"], ["1", "0.20"]], "discount": "0", "taxRate": "0",
+      "expect": { "lines": [30, 20], "subtotal": 50, "tax": 0, "total": 50 }
+    },
+    {
+      "name": "Free item and multiple lines",
+      "items": [["1", "0.00"], ["12", "7.25"], ["2.5", "40.00"]], "discount": "15.00", "taxRate": "7.5",
+      "expect": { "lines": [0, 8700, 10000], "subtotal": 18700, "tax": 1290, "total": 18490 }
+    },
+    {
+      "name": "Upper limits stay exact: 100,000 x $1,000,000.00 at 100% tax",
+      "items": [["100000", "1000000.00"]], "discount": "0", "taxRate": "100",
+      "expect": { "lines": [10000000000000], "subtotal": 10000000000000, "tax": 10000000000000, "total": 20000000000000 }
+    }
+  ],
+  "invalid": [
+    { "name": "Negative quantity", "items": [["-1", "10.00"]], "discount": "0", "taxRate": "0", "errorPath": "items.0.quantity", "errorContains": "negative" },
+    { "name": "Negative price", "items": [["1", "-10.00"]], "discount": "0", "taxRate": "0", "errorPath": "items.0.unitPrice", "errorContains": "negative" },
+    { "name": "Negative discount", "items": [["1", "10.00"]], "discount": "-1", "taxRate": "0", "errorPath": "discount", "errorContains": "negative" },
+    { "name": "Negative tax rate", "items": [["1", "10.00"]], "discount": "0", "taxRate": "-5", "errorPath": "taxRate", "errorContains": "negative" },
+    { "name": "Discount above subtotal", "items": [["2", "50.00"]], "discount": "100.01", "taxRate": "0", "errorPath": "discount", "errorContains": "exceed" },
+    { "name": "Zero quantity", "items": [["0", "10.00"]], "discount": "0", "taxRate": "0", "errorPath": "items.0.quantity", "errorContains": "greater than 0" },
+    { "name": "Price with 3 decimals", "items": [["1", "1.999"]], "discount": "0", "taxRate": "0", "errorPath": "items.0.unitPrice", "errorContains": "decimal" },
+    { "name": "Text instead of number", "items": [["two", "10.00"]], "discount": "0", "taxRate": "0", "errorPath": "items.0.quantity", "errorContains": "number" },
+    { "name": "Scientific notation rejected", "items": [["1e3", "10.00"]], "discount": "0", "taxRate": "0", "errorPath": "items.0.quantity", "errorContains": "number" },
+    { "name": "Tax rate over 100%", "items": [["1", "10.00"]], "discount": "0", "taxRate": "100.001", "errorPath": "taxRate", "errorContains": "100%" },
+    { "name": "Quantity over limit", "items": [["100000.001", "1.00"]], "discount": "0", "taxRate": "0", "errorPath": "items.0.quantity", "errorContains": "more than" }
+  ]
+}

@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Browser tests</title>
+  <style>
+    body { font: 14px/1.5 system-ui, sans-serif; margin: 20px; }
+    #results { white-space: pre-wrap; font-family: ui-monospace, monospace; }
+    iframe { width: 1280px; height: 900px; border: 1px solid #ccc; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <h1 id="verdict">Running…</h1>
+  <pre id="results"></pre>
+  <iframe id="app" title="App under test"></iframe>
+  <script type="module" src="browser.js"></script>
+</body>
+</html>

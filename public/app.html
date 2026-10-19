@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Invoice Studio</title>
+  <meta name="description" content="Create, preview, save and email invoices.">
+  <meta name="theme-color" content="#f4f1ea">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231f5f4a'/%3E%3Cpath d='M10 8h9l3 3v13H10z' fill='%23f4f1ea'/%3E%3Cpath d='M13 15h6M13 19h4' stroke='%231f5f4a' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="assets/app.css">
+  <script type="module" src="assets/app.js"></script>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 5.1A10 10 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.6 6.6C3.9 8.4 2 12 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6M9.9 9.9a3 3 0 0 0 4.2 4.2"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></symbol>
+    <symbol id="i-print" viewBox="0 0 24 24"><path d="M7 9V3h10v6M7 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/><path d="M7 14h10v7H7z"/></symbol>
+    <symbol id="i-save" viewBox="0 0 24 24"><path d="M5 3h11l3 3v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z"/><path d="M8 3v5h7M8 21v-7h8v7"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+    <symbol id="i-new" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M12 12v6M9 15h6"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  </svg>
+
+  <a class="skip-link" href="#editor">Skip to invoice editor</a>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <h1 class="brand-name">Invoice Studio</h1>
+    </div>
+
+    <div class="doc-status" aria-live="polite">
+      <span class="doc-number" id="doc-number">New invoice</span>
+      <span class="status-chip" id="status-chip" data-state="new">Not saved yet</span>
+    </div>
+
+    <nav class="actions" aria-label="Invoice actions">
+      <button type="button" class="btn btn-ghost" id="btn-list"><svg class="icon"><use href="#i-folder"/></svg><span>Invoices</span></button>
+      <button type="button" class="btn btn-ghost" id="btn-new"><svg class="icon"><use href="#i-new"/></svg><span>New</span></button>
+      <button type="button" class="btn btn-ghost" id="btn-print"><svg class="icon"><use href="#i-print"/></svg><span>Print / PDF</span></button>
+      <button type="button" class="btn btn-ghost" id="btn-email"><svg class="icon"><use href="#i-mail"/></svg><span>Email</span></button>
+      <button type="button" class="btn btn-primary" id="btn-save" aria-keyshortcuts="Control+S"><svg class="icon"><use href="#i-save"/></svg><span>Save</span></button>
+    </nav>
+  </header>
+
+  <div class="view-switch" role="tablist" aria-label="Choose view">
+    <button type="button" role="tab" id="tab-edit" aria-controls="editor" aria-selected="true">Edit</button>
+    <button type="button" role="tab" id="tab-preview" aria-controls="preview-pane" aria-selected="false" tabindex="-1">Preview</button>
+  </div>
+
+  <main class="workspace" data-view="edit">
+    <form class="editor" id="editor" novalidate aria-label="Invoice editor" tabindex="-1">
+      <div class="error-summary" id="error-summary" role="alert" hidden></div>
+
+      <section class="card" aria-labelledby="h-details">
+        <div class="card-head"><h2 id="h-details">Invoice details</h2></div>
+        <div class="grid g-3">
+          <div class="field">
+            <label for="f-number">Invoice number <span class="req" aria-hidden="true">*</span></label>
+            <input id="f-number" data-bind="number" autocomplete="off" required aria-required="true" maxlength="40" class="mono">
+          </div>
+          <div class="field">
+            <label for="f-issue">Issue date <span class="req" aria-hidden="true">*</span></label>
+            <input id="f-issue" type="date" data-bind="issueDate" required aria-required="true">
+          </div>
+          <div class="field">
+            <label for="f-due">Due date <span class="req" aria-hidden="true">*</span></label>
+            <input id="f-due" type="date" data-bind="dueDate" required aria-required="true">
+          </div>
+        </div>
+        <div class="chips" role="group" aria-label="Set due date from issue date">
+          <span class="chips-label" aria-hidden="true">Terms</span>
+          <button type="button" class="chip" data-terms="0">On receipt</button>
+          <button type="button" class="chip" data-terms="7">Net 7</button>
+          <button type="button" class="chip" data-terms="14">Net 14</button>
+          <button type="button" class="chip" data-terms="30">Net 30</button>
+        </div>
+      </section>
+
+      <div class="grid g-2 parties">
+        <section class="card" aria-labelledby="h-from">
+          <div class="card-head"><h2 id="h-from">From</h2><p class="card-hint">Your business</p></div>
+          <div class="field">
+            <label for="f-bname">Business name <span class="req" aria-hidden="true">*</span></label>
+            <input id="f-bname" data-bind="business.name" autocomplete="organization" required aria-required="true" maxlength="120">
+          </div>
+          <div class="field">
+            <label for="f-bemail">Email</label>
+            <input id="f-bemail" type="email" data-bind="business.email" autocomplete="email" inputmode="email" maxlength="254">
+          </div>
+          <div class="field">
+            <label for="f-bphone">Phone</label>
+            <input id="f-bphone" type="tel" data-bind="business.phone" autocomplete="tel" maxlength="40">
+          </div>
+          <div class="field">
+            <label for="f-baddress">Address</label>
+            <textarea id="f-baddress" data-bind="business.address" rows="3" autocomplete="street-address" maxlength="500"></textarea>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="h-to">
+          <div class="card-head"><h2 id="h-to">Bill to</h2><p class="card-hint">Your customer</p></div>
+          <div class="field">
+            <label for="f-cname">Customer name <span class="req" aria-hidden="true">*</span></label>
+            <input id="f-cname" data-bind="customer.name" autocomplete="off" required aria-required="true" maxlength="120">
+          </div>
+          <div class="field">
+            <label for="f-cemail">Email</label>
+            <input id="f-cemail" type="email" data-bind="customer.email" autocomplete="off" inputmode="email" maxlength="254">
+            <p class="hint" id="f-cemail-hint">Used as the default recipient when you email the invoice.</p>
+          </div>
+          <div class="field">
+            <label for="f-caddress">Address</label>
+            <textarea id="f-caddress" data-bind="customer.address" rows="3" autocomplete="off" maxlength="500"></textarea>
+          </div>
+        </section>
+      </div>
+
+      <section class="card" aria-labelledby="h-items">
+        <div class="card-head"><h2 id="h-items">Line items</h2><p class="card-hint">Amounts in USD</p></div>
+        <div class="items-head" aria-hidden="true">
+          <span>Description</span><span>Qty</span><span>Unit price</span><span class="num">Amount</span><span></span>
+        </div>
+        <ol class="items" id="items"></ol>
+        <p class="field-error" id="err-items" hidden></p>
+        <button type="button" class="btn btn-add" id="btn-add-item"><svg class="icon"><use href="#i-plus"/></svg>Add line item</button>
+      </section>
+
+      <section class="card" aria-labelledby="h-totals">
+        <div class="card-head"><h2 id="h-totals">Discount &amp; tax</h2></div>
+        <div class="grid g-2">
+          <div class="field">
+            <label for="f-discount">Discount (fixed amount)</label>
+            <div class="affix"><span class="affix-sym" aria-hidden="true">$</span>
+              <input id="f-discount" data-bind="discount" inputmode="decimal" autocomplete="off" class="mono" aria-describedby="f-discount-hint">
+            </div>
+            <p class="hint" id="f-discount-hint">Taken off the subtotal before tax. Can’t exceed the subtotal.</p>
+          </div>
+          <div class="field">
+            <label for="f-tax">Tax rate</label>
+            <div class="affix affix-end">
+              <input id="f-tax" data-bind="taxRate" inputmode="decimal" autocomplete="off" class="mono" aria-describedby="f-tax-hint">
+              <span class="affix-sym" aria-hidden="true">%</span>
+            </div>
+            <p class="hint" id="f-tax-hint">Applied to the subtotal after discount, rounded to the cent.</p>
+          </div>
+        </div>
+        <dl class="summary" id="summary" aria-live="polite"></dl>
+      </section>
+
+      <section class="card" aria-labelledby="h-fields">
+        <div class="card-head"><h2 id="h-fields">Custom fields</h2>
+          <p class="card-hint">Extra details like PO number or project. Visible fields appear on the invoice; they never affect totals.</p></div>
+        <ol class="custom-fields" id="custom-fields"></ol>
+        <p class="empty-note" id="fields-empty">No custom fields yet.</p>
+        <p class="field-error" id="err-customFields" hidden></p>
+        <button type="button" class="btn btn-add" id="btn-add-field"><svg class="icon"><use href="#i-plus"/></svg>Add custom field</button>
+      </section>
+
+      <section class="card" aria-labelledby="h-notes">
+        <div class="card-head"><h2 id="h-notes">Notes &amp; style</h2></div>
+        <div class="field">
+          <label for="f-notes">Notes</label>
+          <textarea id="f-notes" data-bind="notes" rows="3" maxlength="2000" placeholder="Payment instructions, thank-you note…"></textarea>
+        </div>
+        <fieldset class="accents">
+          <legend>Accent colour</legend>
+          <div class="swatches" id="swatches"></div>
+        </fieldset>
+      </section>
+    </form>
+
+    <section class="preview-pane" id="preview-pane" aria-label="Live preview">
+      <div class="preview-label" aria-hidden="true">Live preview <span>· prints exactly like this</span></div>
+      <div class="preview-stage">
+        <div class="print-root" id="preview"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Saved invoices -->
+  <dialog class="sheet" id="dlg-list" aria-labelledby="dlg-list-title">
+    <div class="sheet-head">
+      <h2 id="dlg-list-title">Saved invoices</h2>
+      <button type="button" class="icon-btn" data-close aria-label="Close"><svg class="icon"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="sheet-body" id="list-body" aria-live="polite"></div>
+  </dialog>
+
+  <!-- Email -->
+  <dialog class="sheet" id="dlg-email" aria-labelledby="dlg-email-title">
+    <form method="dialog" id="email-form" novalidate>
+      <div class="sheet-head">
+        <h2 id="dlg-email-title">Email invoice</h2>
+        <button type="button" class="icon-btn" data-close aria-label="Close"><svg class="icon"><use href="#i-close"/></svg></button>
+      </div>
+      <div class="sheet-body">
+        <p class="mail-mode" id="mail-mode"></p>
+        <div class="field">
+          <label for="m-to">To <span class="req" aria-hidden="true">*</span></label>
+          <input id="m-to" name="to" type="email" inputmode="email" autocomplete="email" required aria-required="true" maxlength="254">
+        </div>
+        <div class="field">
+          <label for="m-message">Message <span class="optional">(optional)</span></label>
+          <textarea id="m-message" name="message" rows="7" maxlength="2000"></textarea>
+        </div>
+        <p class="hint">The saved invoice is sent as a formatted email. Unsaved changes are saved first.</p>
+        <div class="email-history" id="email-history"></div>
+      </div>
+      <div class="sheet-foot">
+        <button type="button" class="btn btn-ghost" data-close>Cancel</button>
+        <button type="submit" class="btn btn-primary" id="btn-send" value="send"><svg class="icon"><use href="#i-mail"/></svg>Send email</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+</body>
+</html>
